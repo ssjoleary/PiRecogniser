@@ -1,4 +1,5 @@
 package ie.icecreamsamwich.pirecogniser;
+
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
@@ -25,12 +26,6 @@ public class FaceRecognize {
 	 * names are associated with integers stored in labels array
 	 */
 	private Map<Integer, String> names;
-	// 'Database' of images in the format <label>-<firstname>_<lastname>_<number>.jpg
-	private final String trainingDir = "/Users/samoleary/Documents/Images/FaceImages/";
-	// Directory where the image(s) to be recognized are taken from
-	private final String imageDir = "/Users/samoleary/Documents/Images/OutputFaceImages/";
-
-	private final String TRAINED_MODEL = "/Users/samoleary/Documents/Images/Model/TRModel.xml";
 
 	// This filters out all other files that don't end in '.jpg' when applied to a list of files in a directory
 	private static FilenameFilter jpgFilter = new FilenameFilter() {
@@ -40,15 +35,12 @@ public class FaceRecognize {
 	};
 
 	private FaceRecognizer faceRecognizer;
-	private MatVector images;
-	private int[] labels;
-	// 'grayImg' is a grayscaled version of 'img' which is a jpg
+    // 'grayImg' is a grayscaled version of 'img' which is a jpg
 	// from the 'Database' directory
 	private IplImage img;
-	private IplImage grayImg;
 
-	public FaceRecognize() {
-		System.out.println("FaceRecognize starting...");
+    public FaceRecognize() {
+		/*System.out.println("FaceRecognize starting...");
 		faceRecognizer = createLBPHFaceRecognizer();
 		names = Collections.synchronizedMap(new HashMap<Integer, String>(5));
 		names.put(1, "Sam");
@@ -56,23 +48,25 @@ public class FaceRecognize {
 		names.put(3, "Neil");
 		names.put(4, "Stuart");
 		names.put(5, "Jess");
-		names.put(6, "Margo");
+		names.put(6, "Margo");*/
 	}
 
-	public FaceRecognizer train() {
+
+
+    public FaceRecognizer train() {
 		System.out.println("Training model....");
 		// This takes the 'Database' directory and takes all the images that
 		// end in '.jpg' in this directory and adds them to a File Array.
-		File root = new File(trainingDir);
+		File root = new File(Constants.FACES_FOLDER);
 		File[] trainingImageFiles = root.listFiles(jpgFilter);
 
 		// When the images are taken out of the 'Database' directory
 		// they are grayscaled and added to this 'MatVector'
-		images = new MatVector(trainingImageFiles.length);
+        MatVector images = new MatVector(trainingImageFiles.length);
 
 		// Each image has a label which corresponds to 1 individual
 		// Each individual will have a number of images 
-		labels = new int[trainingImageFiles.length];
+        int[] labels = new int[trainingImageFiles.length];
 
 		int counter = 0;
 		int label;
@@ -84,7 +78,7 @@ public class FaceRecognize {
 		for (File image : trainingImageFiles) {
 			img = cvLoadImage(image.getAbsolutePath());
 			label = Integer.parseInt(image.getName().split("\\-")[0]);
-			grayImg = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
+            IplImage grayImg = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
 			cvCvtColor(img, grayImg, CV_BGR2GRAY);
 			images.put(counter, grayImg);
 			labels[counter] = label;
@@ -99,7 +93,7 @@ public class FaceRecognize {
 
 	public ImageDetails recognize() {
 		// Load images to be recognized
-		File imageRoot = new File(imageDir);
+		File imageRoot = new File(Constants.FACES_FOLDER);
 		File[] imageFiles = imageRoot.listFiles(jpgFilter);
 		ImageDetails detailsObject = null;
 		for (File image : imageFiles) {
@@ -107,8 +101,8 @@ public class FaceRecognize {
 			IplImage greyTestImage = IplImage.create(img.width(), img.height(), IPL_DEPTH_8U, 1);
 			cvCvtColor(img, greyTestImage, CV_BGR2GRAY);
 			int predictedLabel = faceRecognizer.predict(greyTestImage);
-			if (names.containsKey(Integer.valueOf(predictedLabel))) {
-				String name = (String) names.get(Integer.valueOf(predictedLabel));
+			if (names.containsKey(predictedLabel)) {
+				String name = names.get(predictedLabel);
 				System.out.println("*********\nImage Name: " + image.getName() + "\nName: " + name + "\nPredicted label: " + predictedLabel);
 
 				detailsObject = new ImageDetails(image.getName(), name, predictedLabel);
@@ -118,7 +112,7 @@ public class FaceRecognize {
 	}
 
 	public void saveTrainingData(){
-		faceRecognizer.save(TRAINED_MODEL);
+		faceRecognizer.save(Constants.TRAINED_MODEL);
 		/*try {
 			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(TRAINED_MODEL));
 			os.writeObject(names);
@@ -131,7 +125,7 @@ public class FaceRecognize {
 	}
 
 	public void loadTrainingData(){
-		faceRecognizer.load(TRAINED_MODEL);
+		faceRecognizer.load(Constants.TRAINED_MODEL);
 		/*try {
 			ObjectInputStream is = new ObjectInputStream(new FileInputStream(TRAINED_MODEL));
 			names = (Map<Integer, String>) is.readObject();

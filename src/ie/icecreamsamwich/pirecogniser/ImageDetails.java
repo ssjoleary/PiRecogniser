@@ -19,8 +19,7 @@ public class ImageDetails {
 	}
 	
 	public String toString() {
-		String detailsString = "The name of the image is " + imageName + ", the person identified is " + personName + " and their label is " + Integer.toString(label);
-		return detailsString;
+        return "The name of the image is " + imageName + ", the person identified is " + personName + " and their label is " + Integer.toString(label);
 	}
 	
 	public String[] getDetails() {

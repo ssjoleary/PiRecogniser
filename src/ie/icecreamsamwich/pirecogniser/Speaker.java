@@ -18,9 +18,8 @@ import com.sun.speech.freetts.VoiceManager;
 public class Speaker {
 
 	private Voice helloVoice;
-	private VoiceManager voiceManager;
 
-	/**
+    /**
 	 * Example of how to list all the known voices.
 	 */
 	public static void listAllVoices() {
@@ -28,10 +27,9 @@ public class Speaker {
 		System.out.println("All voices available:");        
 		VoiceManager voiceManager = VoiceManager.getInstance();
 		Voice[] voices = voiceManager.getVoices();
-		for (int i = 0; i < voices.length; i++) {
-			System.out.println("    " + voices[i].getName()
-					+ " (" + voices[i].getDomain() + " domain)");
-		}
+        for (Voice voice : voices)
+            System.out.println("    " + voice.getName()
+                    + " (" + voice.getDomain() + " domain)");
 	}
 
 	public void initialize() {
@@ -45,7 +43,7 @@ public class Speaker {
 
 		/* The VoiceManager manages all the voices for FreeTTS.
 		 */
-		voiceManager = VoiceManager.getInstance();
+        VoiceManager voiceManager = VoiceManager.getInstance();
 		helloVoice = voiceManager.getVoice(voiceName);
 
 		if (helloVoice == null) {
